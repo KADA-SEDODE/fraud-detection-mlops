@@ -1,0 +1,49 @@
+# --- Environnements virtuels ---
+.venv/
+venv/
+env/
+
+# --- Données brutes et sorties ---
+data/
+datasets/
+outputs/
+logs/
+mlruns/           # dossier généré par MLflow
+models/
+checkpoints/
+*.pkl
+*.joblib
+*.h5
+
+# --- Fichiers Jupyter temporaires ---
+.ipynb_checkpoints/
+
+# --- Cache & compilations ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Config locales ---
+*.env
+.env.*
+.DS_Store
+*.swp
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+*.bak
+Thumbs.db
+
+# --- Docker / Build ---
+*.log
+*.pid
+*.gz
+*.egg-info/
+dist/
+build/
+
+# --- Airflow ---
+airflow/logs/
+airflow/__pycache__/

@@ -1,0 +1,32 @@
+# --- Data manipulation & exploration ---
+pandas
+numpy
+scikit-learn
+catboost
+xgboost
+
+# --- Visualization (facultatif pour notebook) ---
+matplotlib
+seaborn
+
+# --- Model tracking & MLOps ---
+mlflow
+
+# --- API & serving ---
+fastapi
+uvicorn
+
+# --- Orchestration ---
+apache-airflow==2.9.2     # version stable pour usage local
+
+# --- Utilities & helpers ---
+joblib
+python-dotenv
+
+# --- Containerisation / CI-CD (optionnel) ---
+docker                      # si tu veux construire localement, sinon à ignorer
+requests
+
+# --- Notebook environment ---
+jupyterlab
+ipykernel
