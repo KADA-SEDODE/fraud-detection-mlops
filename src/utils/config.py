@@ -11,3 +11,7 @@ MLFLOW_DIR = PROJECT_ROOT / "mlruns"
 
 # --- Fichiers spécifiques ---
 CREDITCARD_PATH = DATA_DIR / "creditcard.csv"
+
+if __name__ == "__main__":
+    print(PROJECT_ROOT)
+    print(CREDITCARD_PATH.exists())
