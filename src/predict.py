@@ -40,18 +40,18 @@ def preprocess_input(df: pd.DataFrame, scaler: StandardScaler | None):
     """
     Applique le même prétraitement que pendant l'entraînement :
     - Standardisation des colonnes 'Time' et 'Amount'
-    - Vérification que toutes les colonnes sont présentes
+    - Réordonne les colonnes dans le même ordre que le modèle
     """
-    expected_cols = [f"V{i}" for i in range(1, 29)] + ["Time", "Amount"]
+    expected_cols = ["Time", "Amount"] + [f"V{i}" for i in range(1, 29)]
     missing = [c for c in expected_cols if c not in df.columns]
     if missing:
         raise ValueError(f"Colonnes manquantes : {missing}")
 
-    df_processed = df.copy()
+    df_processed = df[expected_cols].copy()
 
     if scaler is not None:
-        cols_to_scale = [c for c in ["Time", "Amount"] if c in df.columns]
-        df_processed[cols_to_scale] = scaler.transform(df[cols_to_scale])
+        cols_to_scale = ["Time", "Amount"]
+        df_processed[cols_to_scale] = scaler.transform(df_processed[cols_to_scale])
 
     return df_processed
 
@@ -62,9 +62,21 @@ def preprocess_input(df: pd.DataFrame, scaler: StandardScaler | None):
 def predict_fraud(df: pd.DataFrame, model, scaler=None, threshold: float = 0.5):
     """
     Retourne les probabilités et prédictions binaires de fraude.
+    Force les colonnes à être dans le même ordre que lors de l'entraînement.
     """
-    df_processed = preprocess_input(df, scaler)
-    proba = model.predict_proba(df_processed)[:, 1]
+    ordered_cols = ["Time"] + [f"V{i}" for i in range(1, 29)] + ["Amount"]
+
+
+    for col in ordered_cols:
+        if col not in df.columns:
+            raise ValueError(f"Colonne manquante : {col}")
+
+    df = df[ordered_cols].copy()
+
+    if scaler is not None:
+        df[["Time", "Amount"]] = scaler.transform(df[["Time", "Amount"]])
+
+    proba = model.predict_proba(df)[:, 1]
     preds = (proba >= threshold).astype(int)
 
     results = pd.DataFrame({
@@ -80,7 +92,6 @@ def predict_fraud(df: pd.DataFrame, model, scaler=None, threshold: float = 0.5):
 #  Point d’entrée principal
 
 if __name__ == "__main__":
-    #  Chargement du fichier de nouvelles transactions
     new_data_path = Path("data/new_transactions.csv")
     if not new_data_path.exists():
         raise FileNotFoundError(f"Fichier non trouvé : {new_data_path}")
@@ -88,15 +99,12 @@ if __name__ == "__main__":
     df_new = pd.read_csv(new_data_path)
     logger.info(f"Nouvelles transactions chargées : {df_new.shape[0]} lignes")
 
-    #  Chargement du modèle et du scaler
     model, scaler = load_model_and_scaler("xgbclassifier_fraud")
 
-    #  Prédictions
     results = predict_fraud(df_new, model, scaler, threshold=0.5)
     print(results)
 
-    #  Sauvegarde des résultats
     output_path = Path("outputs/predictions.csv")
     output_path.parent.mkdir(exist_ok=True)
     results.to_csv(output_path, index=False)
-    logger.info(f"Résultats sauvegardés dans {output_path} ")
+    logger.info(f"Résultats sauvegardés dans {output_path}")
